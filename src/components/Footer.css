@@ -1,0 +1,135 @@
+.footer-section {
+    background-color: #3e5246;
+    color: white;
+    padding: 60px 40px 40px;
+    /* Reduced top padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-heading {
+    font-family: 'Garamond', 'Times New Roman', serif;
+    /* Standard Serif */
+    font-size: 32px;
+    /* Slightly smaller */
+    font-weight: 400;
+    margin-bottom: 12px;
+    /* Reduced */
+    letter-spacing: 0.5px;
+}
+
+.footer-subtext {
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    margin-bottom: 20px;
+    /* Reduced */
+    opacity: 0.9;
+    max-width: 500px;
+}
+
+.email-form {
+    display: flex;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-bottom: 40px;
+    /* Reduced significantly from 70px */
+    /* More space before Links */
+    transition: border-color 0.3s;
+    justify-content: space-between;
+}
+
+.email-form:focus-within {
+    border-color: white;
+}
+
+.email-input {
+    background: transparent;
+    border: none;
+    color: white;
+    flex: 1;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+.email-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 1px;
+}
+
+.email-submit {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.links-heading {
+    font-family: 'Garamond', 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 15px;
+    /* Reduced */
+    letter-spacing: 0.5px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 25px;
+    /* Reduced gap */
+    margin-bottom: 40px;
+    /* Reduced significantly from 80px */
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer-link {
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.2s;
+    letter-spacing: 0.5px;
+}
+
+.footer-link:hover {
+    color: white;
+}
+
+.footer-bottom {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    /* Reduced gap */
+    /* Removed border-top matches screenshot better */
+    padding-top: 0;
+}
+
+.payment-icons {
+    height: 25px;
+    /* Slightly larger */
+    width: auto;
+    opacity: 1;
+}
+
+.copyright-text {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.5px;
+}
+
+.discount-widget-bottom {
+    /* If the widget is part of footer? No, it's usually fixed. Ignoring for footer component inner */
+}

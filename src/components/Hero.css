@@ -1,0 +1,100 @@
+.hero-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 0 5%;
+    /* Creates the white side margins */
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.hero-container {
+    width: 100%;
+    height: 600px;
+    background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Overlay to ensure text readability if needed, though the screenshot has a white card */
+
+.hero-card {
+    background-color: #faf9f6;
+    /* Off-white/cream color */
+    padding: 60px 80px;
+    text-align: center;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.hero-title {
+    font-family: serif;
+    /* Should ideally be a specific font, but serif works for now */
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.hero-subtitle {
+    font-family: sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+}
+
+.shop-now-btn {
+    background: transparent;
+    border: 1px solid #333;
+    padding: 12px 32px;
+    font-size: 13px;
+    text-transform: lowercase;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+.shop-now-btn:hover {
+    background: #333;
+    color: white;
+}
+
+/* Get 10% Off Widget */
+.discount-widget {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #4a5d50;
+    /* Dark green tone */
+    color: white;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.discount-widget .close-btn {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: white;
+    color: #333;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    border: 1px solid #ccc;
+}

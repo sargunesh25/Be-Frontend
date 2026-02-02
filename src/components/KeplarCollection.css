@@ -1,0 +1,91 @@
+.keplar-section {
+    padding: 0 40px 60px 40px;
+    /* Matching side margins */
+    background-color: #fdfbf7;
+}
+
+.keplar-container {
+    width: 100%;
+    height: 500px;
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    display: flex;
+    justify-content: flex-end;
+    /* Align content to the right */
+    padding: 40px 0;
+    /* Vertical padding inside */
+}
+
+.keplar-content {
+    width: 40%;
+    padding-right: 40px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Center content vertically together */
+    align-items: flex-end;
+    /* Align to right */
+    gap: 20px;
+    /* Space between elements */
+    height: 100%;
+}
+
+.keplar-text-group {
+    /* Group strings if needed, or just let them stack at top */
+}
+
+.keplar-subtitle {
+    display: none;
+    /* Removed */
+}
+
+.keplar-title {
+    font-family: 'Jost', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #3e5246;
+    /* Dark Green for contrast */
+    margin-bottom: 0;
+}
+
+.keplar-desc {
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: #3e5246;
+    /* Dark Green */
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.keplar-btn {
+    background-color: #3e5246;
+    /* Olive green fixed */
+    color: white;
+    border: 1px solid #3e5246;
+    padding: 12px 32px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 0;
+    align-self: flex-end;
+    margin-top: 10px;
+}
+
+.keplar-btn:hover {
+    background-color: #3e5246;
+    /* No change */
+    border-color: #3e5246;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .keplar-content {
+        width: 100%;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.7);
+        /* Readable on mobile */
+    }
+}
