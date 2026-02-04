@@ -5,28 +5,15 @@ import ProductGrid from '../components/ProductGrid';
 import './Cart.css';
 import { getCart, addToCart as apiAddToCart, removeFromCart } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { fetchCartCount } = useCart(); // Assuming I'll add this to context, or simply manually update
+    const { fetchCartCount } = useCart();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    // Context might not expose fetchCartCount yet, so I'll handle local updates 
-    // and rely on page reload or nav for global count update for now, 
-    // or I'll patch context in a bit.
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token);
-
-        if (token) {
-            loadApiCart();
-        } else {
-            loadGuestCart();
-        }
-    }, []);
 
     const loadApiCart = async () => {
         try {
@@ -46,6 +33,21 @@ const Cart = () => {
         setCartItems(guestCart);
         setLoading(false);
     };
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            const token = localStorage.getItem('token');
+            setIsLoggedIn(!!user && !!token);
+
+            if (user && token) {
+                loadApiCart();
+            } else {
+                loadGuestCart();
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const updateQuantity = async (item, delta) => {
         const newQty = item.quantity + delta;

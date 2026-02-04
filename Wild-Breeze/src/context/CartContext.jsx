@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getCart, addToCart as apiAddToCart } from '../services/api';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const CartContext = createContext();
 
@@ -9,10 +11,29 @@ export const CartProvider = ({ children }) => {
     const [cartCount, setCartCount] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [lastAddedItem, setLastAddedItem] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Listen to Firebase auth state changes
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsLoggedIn(!!user);
+            if (user) {
+                // User is signed in, fetch cart
+                fetchCartCount();
+            } else {
+                // User is signed out, load guest cart
+                const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+                const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+                setCartCount(count);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const fetchCartCount = async () => {
         const token = localStorage.getItem('token');
-        if (token) {
+        if (token && auth.currentUser) {
             try {
                 const cartItems = await getCart();
                 const count = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -28,16 +49,11 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // Fetch initial cart count
-    useEffect(() => {
-        fetchCartCount();
-    }, []);
-
     const addToCart = async (product, quantity = 1) => {
         const token = localStorage.getItem('token');
         let success = false;
 
-        if (token) {
+        if (token && auth.currentUser) {
             try {
                 await apiAddToCart(product.id, quantity);
                 success = true;
@@ -79,7 +95,7 @@ export const CartProvider = ({ children }) => {
     };
 
     return (
-        <CartContext.Provider value={{ cartCount, addToCart, isModalOpen, lastAddedItem, closeModal, fetchCartCount }}>
+        <CartContext.Provider value={{ cartCount, addToCart, isModalOpen, lastAddedItem, closeModal, fetchCartCount, isLoggedIn }}>
             {children}
         </CartContext.Provider>
     );
