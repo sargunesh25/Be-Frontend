@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Jost:wght@300;400;500&display=swap');
+
+.navbar-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fcfbf7;
+    /* Cream/Off-white background */
+    font-family: 'Jost', sans-serif;
+}
+
+.promo-bar {
+    background-color: #3e5246;
+    /* Dark green */
+    color: #e6e6e6;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    position: relative;
+}
+
+/* Left side icons (Search) */
+.header-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Center Logo */
+.site-title {
+    flex: 2;
+    /* Increased flex to center properly */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 38px;
+    color: #1a1a1a;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    /* Ensure no underline */
+}
+
+.title-icon {
+    stroke-width: 2.5px;
+}
+
+/* Right side icons (User, Bag) */
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.icon-btn {
+    cursor: pointer;
+    color: #333;
+    transition: opacity 0.2s;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    padding: 0;
+    margin-right: 15px;
+}
+
+/* Navigation Links Row */
+.nav-bar {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 30px;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 15px 20px;
+    }
+
+    .header-left {
+        justify-content: flex-start;
+        display: flex;
+        align-items: center;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .search-icon {
+        display: none;
+        /* Hide search on mobile header to save space, or move it */
+    }
+
+    .site-title {
+        font-size: 28px;
+    }
+
+    .title-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-bar {
+        background-color: #fcfbf7;
+        overflow: hidden;
+        max-height: 0;
+        /* Hidden by default */
+        flex-direction: column;
+        width: 100%;
+        padding-bottom: 0;
+    }
+
+    .nav-bar.open {
+        max-height: 400px;
+        /* Expand when open */
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-item {
+        display: block;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+        width: 100%;
+    }
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    justify-content: center;
+}
+
+.nav-item:hover {
+    color: #000;
+}
+
+.nav-item.active {
+    color: #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+/* Add these to existing Navbar.css */
+.cart-icon-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: #3b4d40;
+    /* Dark green/grey */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #fdfbf7;
+}

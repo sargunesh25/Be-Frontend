@@ -1,0 +1,97 @@
+.account-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    /* Increased padding for better breathing room but balanced */
+    background-color: #FAF9F6;
+    /* Cream generic background, though styles might be global. Assuming component specific or inheriting. */
+    min-height: 50vh;
+    /* Reduced from 800px to allow footer to rise naturally */
+    color: #333;
+    font-family: 'DM Sans', sans-serif;
+    /* Default body font */
+}
+
+.account-header {
+    margin-bottom: 60px;
+}
+
+.account-title {
+    font-family: 'Playfair Display', serif;
+    /* Serif for headers */
+    font-size: 3rem;
+    font-weight: 400;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.logout-link {
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logout-link:hover {
+    color: #000;
+}
+
+.account-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.order-history-section {
+    flex: 2;
+}
+
+.account-details-section {
+    flex: 1;
+    max-width: 300px;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+.empty-orders-text {
+    color: #666;
+    font-size: 1rem;
+}
+
+.account-details-content p {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 1rem;
+}
+
+.view-addresses-link {
+    color: #666;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .account-page {
+        padding: 40px 20px;
+    }
+
+    .account-content {
+        flex-direction: column;
+    }
+
+    .account-details-section {
+        max-width: 100%;
+        margin-top: 40px;
+    }
+}

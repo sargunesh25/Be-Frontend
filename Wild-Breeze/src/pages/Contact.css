@@ -1,0 +1,60 @@
+.contact-page {
+    padding: 40px 20px;
+    background-color: #fdfbf7;
+    min-height: 50vh;
+    /* Adjust as needed, footer will take up space */
+    display: flex;
+    justify-content: center;
+}
+
+.contact-container {
+    max-width: 800px;
+    text-align: center;
+}
+
+.contact-title {
+    font-family: "Garamond", serif;
+    font-size: 48px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    color: #333;
+    letter-spacing: 1px;
+}
+
+.contact-content {
+    font-family: 'Jost', sans-serif;
+    color: #555;
+    line-height: 1.6;
+}
+
+.contact-text {
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+.contact-email-section {
+    margin-bottom: 30px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.email-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.email-link:hover {
+    text-decoration: underline;
+}
+
+.contact-note {
+    font-size: 14px;
+    color: #777;
+}
+
+@media (max-width: 600px) {
+    .contact-title {
+        font-size: 36px;
+    }
+}

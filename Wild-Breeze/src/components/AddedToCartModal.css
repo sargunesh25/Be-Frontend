@@ -1,0 +1,139 @@
+/* Modal Overlay - Positioned relative to navbar or absolute */
+.cart-modal-overlay {
+    position: fixed;
+    top: 80px;
+    /* Adjust based on navbar height */
+    right: 40px;
+    z-index: 1000;
+}
+
+.cart-modal {
+    background-color: #fdfbf7;
+    /* Off-white matching site theme */
+    border: 1px solid #e0e0e0;
+    width: 380px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.success-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+}
+
+.cart-modal-body {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.modal-product-image {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.modal-product-details {
+    flex: 1;
+}
+
+.modal-product-title {
+    font-family: 'Garamond', serif;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.modal-product-variant {
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    color: #777;
+    margin: 0;
+}
+
+.cart-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #333;
+    padding: 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+}
+
+.btn-primary {
+    background: #3a4b40;
+    /* Dark green/grey from screenshot */
+    color: white;
+    border: none;
+    padding: 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #2c3a31;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 5px;
+}
+
+.btn-link:hover {
+    color: #333;
+}

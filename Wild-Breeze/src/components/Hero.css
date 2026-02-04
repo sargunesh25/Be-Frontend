@@ -1,0 +1,136 @@
+.hero-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 0 5%;
+    /* Creates the white side margins */
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.hero-container {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 1s ease-in-out;
+}
+
+/* Active Slide - Centered */
+.slide-active {
+    transform: translate(0, 0);
+    z-index: 2;
+}
+
+/* Previous Slide - Exits Down */
+.slide-exit {
+    transform: translate(0, 100%);
+    z-index: 1;
+}
+
+/* Next Slide - Enters from Right */
+.slide-enter {
+    transform: translate(100%, 0);
+    z-index: 3;
+}
+
+/* Ensure entering slide is effectively 'waiting' off-screen right before it becomes active */
+.slide-waiting {
+    transform: translate(100%, 0);
+    z-index: 0;
+}
+
+/* Overlay to ensure text readability if needed, though the screenshot has a white card */
+
+.hero-card {
+    background-color: #faf9f6;
+    padding: 30px 40px;
+    /* Reduced padding */
+    text-align: center;
+    max-width: 350px;
+    /* Reduced max-width */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin: 0 auto;
+    /* Ensure centering */
+}
+
+.hero-title {
+    font-family: serif;
+    /* Should ideally be a specific font, but serif works for now */
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.hero-subtitle {
+    font-family: sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+}
+
+.shop-now-btn {
+    background: transparent;
+    border: 1px solid #333;
+    padding: 12px 32px;
+    font-size: 13px;
+    text-transform: lowercase;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+.shop-now-btn:hover {
+    background: #333;
+    color: white;
+}
+
+/* Get 10% Off Widget */
+.discount-widget {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #4a5d50;
+    /* Dark green tone */
+    color: white;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.discount-widget .close-btn {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: white;
+    color: #333;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    border: 1px solid #ccc;
+}
