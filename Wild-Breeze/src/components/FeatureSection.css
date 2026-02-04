@@ -1,5 +1,6 @@
 .feature-section {
-    padding: 60px 40px;
+    padding: 30px 40px 60px;
+    /* Reduced top padding (was 60px) */
     background-color: #fdfbf7;
     display: flex;
     flex-direction: column;
@@ -9,6 +10,7 @@
 .feature-title {
     font-family: serif;
     font-size: 36px;
+    /* Restored size for general views */
     color: #333;
     margin-bottom: 40px;
     text-align: center;
@@ -43,38 +45,39 @@
     transform: scale(1.02);
 }
 
-.feature-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+/* Button Container */
+.feature-action-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
     width: 100%;
-    padding: 24px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
 }
 
-.feature-text-box {
-    background-color: #fdfbf7;
-    /* Off-white background for the text box */
-    padding: 20px 30px;
-    display: inline-block;
-    min-width: 200px;
-}
-
-.feature-link-text {
-    font-family: serif;
-    font-size: 18px;
-    color: #333;
+/* Styled Button (White bg, black border) */
+.feature-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background-color: white;
+    border: 1px solid #333;
+    color: #333;
+    padding: 12px 30px;
+    font-family: serif;
+    font-size: 18px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
-.arrow-icon {
-    font-size: 18px;
+.feature-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.feature-btn .arrow-icon {
     transition: transform 0.2s ease;
 }
 
-.feature-text-box:hover .arrow-icon {
+.feature-btn:hover .arrow-icon {
     transform: translateX(5px);
 }
 
@@ -88,10 +91,39 @@
 
 @media (max-width: 768px) {
     .feature-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        /* Keep 2 columns side-by-side */
+        gap: 10px;
+        /* Reduce gap */
     }
 
     .feature-card {
-        min-height: 400px;
+        min-height: 250px;
+        /* Reduce height to fit better */
+    }
+
+    /* Reduce outer padding */
+}
+
+.feature-text-box {
+    padding: 10px 15px;
+    /* Smaller padding */
+    min-width: auto;
+    /* Allow it to shrink */
+    width: 100%;
+    /* Take full width of the card if needed */
+    box-sizing: border-box;
+}
+
+.feature-link-text {
+    font-size: 14px;
+    /* Smaller font */
+    justify-content: space-between;
+}
+
+@media (max-width: 350px) {
+    .feature-title {
+        font-size: 24px;
+        /* Smaller font for very small screens */
     }
 }

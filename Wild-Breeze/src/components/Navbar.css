@@ -48,8 +48,10 @@
     color: #1a1a1a;
     cursor: pointer;
     font-weight: 700;
-    text-decoration: none;
     /* Ensure no underline */
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    flex-direction: row;
 }
 
 .title-icon {

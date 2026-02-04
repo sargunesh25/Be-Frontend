@@ -134,3 +134,72 @@
     font-size: 12px;
     border: 1px solid #ccc;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 20px 25px;
+        max-width: 85%;
+    }
+
+    .hero-title {
+        font-size: 24px;
+    }
+
+    .hero-slide {
+        background-position: center top;
+        /* Focus on faces/upper part of images */
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-container {
+        height: 500px;
+        /* Reduce height slightly on mobile */
+    }
+
+    .hero-slide {
+        background-position: center 20%;
+        /* Fine tune for common portrait shots */
+    }
+}
+
+@media (max-width: 350px) {
+    .hero-card {
+        padding: 15px;
+        width: 90%;
+        max-width: 300px;
+        /* Ensure it doesn't overflow */
+    }
+
+    .hero-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .hero-subtitle {
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .shop-now-btn {
+        padding: 10px 24px;
+    }
+
+    /* Ensure background is visible around the card */
+    .hero-slide {
+        align-items: flex-end;
+        /* Push card to bottom */
+        padding-bottom: 40px;
+    }
+
+    /* Or center it but ensure image visibility? 
+       User said "card is fully covered the backgorund img".
+       Moving card down or making it smaller is key.
+       Let's try centering but with the smaller dimensions defined above. 
+    */
+    .hero-slide {
+        align-items: center;
+        /* Keep centered but smaller card */
+    }
+}

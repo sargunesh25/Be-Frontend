@@ -11,7 +11,7 @@ const ProductGrid = ({ title = "Looking for something cozy?" }) => {
         const fetchProducts = async () => {
             const data = await getProducts(); // No filters for default home view
             // Show only first 4 items for the grid/home view
-            setProducts(data.slice(0, 4));
+            setProducts(data.slice(0, 5));
         };
         fetchProducts();
     }, []);

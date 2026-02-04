@@ -16,13 +16,6 @@ const FeatureSection = () => {
                         alt="Woman in green sweatshirt"
                         className="feature-image"
                     />
-                    <div className="feature-content">
-                        <div className="feature-text-box">
-                            <span className="feature-link-text">
-                                Script Crews <ArrowRight size={18} className="arrow-icon" />
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Right Image Stack */}
@@ -33,6 +26,12 @@ const FeatureSection = () => {
                         className="right-feature-image"
                     />
                 </div>
+            </div>
+
+            <div className="feature-action-container">
+                <a href="/shop" className="feature-btn">
+                    Script Crews <ArrowRight size={18} className="arrow-icon" />
+                </a>
             </div>
         </div>
     );
