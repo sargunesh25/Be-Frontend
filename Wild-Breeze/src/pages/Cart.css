@@ -266,21 +266,157 @@
 }
 
 @media (max-width: 768px) {
+    .cart-page-container {
+        padding: 30px 15px;
+    }
+
+    .cart-header-row {
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+
+    .cart-page-title {
+        font-size: 28px;
+    }
+
+    .continue-shopping-top {
+        font-size: 13px;
+    }
+
+    /* Hide Table Headings on Mobile */
+    .cart-table-headings {
+        display: none;
+    }
+
+    /* Mobile Row: CSS Grid
+       [ Image ] [ Info                 ]
+       [ Image ] [ Quantity + Trash     ]
+    */
+    .cart-row {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        /* Image width | Rest */
+        grid-template-rows: auto auto;
+        /* Info | Controls */
+        column-gap: 20px;
+        align-items: start;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    /* Flatten the product data column to let children be grid items */
+    .col-product-data {
+        display: contents;
+    }
+
+    /* Image - Left Column, Spanning 2 Rows */
+    .cart-row-img {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 4px;
+        align-self: start;
+    }
+
+    /* Info - Right Column, Top Row */
+    .cart-row-info {
+        grid-column: 2;
+        grid-row: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-right: 0;
+    }
+
+    .cart-row-info h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+        line-height: 1.3;
+        padding-right: 0;
+    }
+
+    .cart-row-price {
+        font-size: 15px;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    /* Controls: Quantity + Trash - Right Column, Bottom Row */
+    .col-quantity-data {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        /* Align left under the text */
+        gap: 15px;
+        margin-top: 15px;
+        width: 100%;
+        padding: 0;
+    }
+
+    .qty-selector {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 0 5px;
+        width: 100px;
+        /* Fixed width matching reference */
+        justify-content: space-between;
+    }
+
+    .qty-selector button {
+        padding: 0 10px;
+        height: 100%;
+    }
+
+    .trash-btn {
+        padding: 8px;
+        color: #777;
+    }
+
+    /* Hide the standalone Total column on mobile */
+    .col-total-data {
+        display: none;
+    }
+
+    /* Footer / Summary Section */
     .cart-footer-section {
         flex-direction: column;
         gap: 30px;
+        padding-top: 20px;
     }
 
     .special-instructions {
+        width: 100%;
         max-width: 100%;
     }
 
     .cart-summary-box {
+        width: 100%;
         align-items: stretch;
-        text-align: center;
+        text-align: left;
     }
 
     .subtotal-row {
-        justify-content: center;
+        justify-content: space-between;
+        font-size: 18px;
+    }
+
+    .checkout-btn {
+        width: 100%;
+        padding: 18px;
+        font-size: 16px;
+        margin-top: 10px;
     }
 }

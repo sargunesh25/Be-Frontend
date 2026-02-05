@@ -166,10 +166,7 @@ const Cart = () => {
             </div>
 
             <div className="cart-footer-section">
-                <div className="special-instructions">
-                    <label htmlFor="instructions">Order special instructions</label>
-                    <textarea id="instructions" placeholder=""></textarea>
-                </div>
+
 
                 <div className="cart-summary-box">
                     <div className="subtotal-row">

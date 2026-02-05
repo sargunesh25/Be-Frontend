@@ -134,6 +134,52 @@
     margin-top: 5px;
 }
 
-.btn-link:hover {
-    color: #333;
+@media (max-width: 600px) {
+    .cart-modal-overlay {
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Dim background for better focus */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        z-index: 2000;
+        /* Ensure it's on top */
+    }
+
+    .cart-modal {
+        width: 100%;
+        max-width: 350px;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .cart-modal-actions {
+        flex-direction: row;
+        /* Row wise */
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        flex: 1;
+        /* Even spacing */
+        text-align: center;
+        padding: 12px 5px;
+        /* Adjust padding for small screens */
+        font-size: 12px;
+        white-space: nowrap;
+        /* Prevent text wrap if possible */
+    }
+
+    .btn-link {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
 }
