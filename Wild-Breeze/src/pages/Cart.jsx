@@ -3,10 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus } from 'lucide-react';
 import ProductGrid from '../components/ProductGrid';
 import './Cart.css';
-import { getCart, addToCart as apiAddToCart, removeFromCart } from '../services/api';
+import { getCart, addToCart as apiAddToCart, removeFromCart, isAuthenticated } from '../services/api';
 import { useCart } from '../context/CartContext';
-import { auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -35,18 +33,16 @@ const Cart = () => {
     };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            const token = localStorage.getItem('token');
-            setIsLoggedIn(!!user && !!token);
+        // Check authentication using JWT token
+        const token = localStorage.getItem('authToken');
+        const loggedIn = !!token && isAuthenticated();
+        setIsLoggedIn(loggedIn);
 
-            if (user && token) {
-                loadApiCart();
-            } else {
-                loadGuestCart();
-            }
-        });
-
-        return () => unsubscribe();
+        if (loggedIn) {
+            loadApiCart();
+        } else {
+            loadGuestCart();
+        }
     }, []);
 
     const updateQuantity = async (item, delta) => {

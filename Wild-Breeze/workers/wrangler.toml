@@ -1,0 +1,16 @@
+name = "wild-breeze-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "wild-breeze-db"
+database_id = "c8dc2832-8184-4658-8640-421041ae44d3"
+
+# Environment variables (set via wrangler secret put)
+# PRINTFUL_API_TOKEN - Your Printful API token
+# JWT_SECRET - Secret key for JWT signing
+
+[vars]
+CORS_ORIGIN = "*"

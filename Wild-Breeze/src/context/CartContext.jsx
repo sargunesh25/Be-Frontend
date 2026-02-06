@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCart, addToCart as apiAddToCart } from '../services/api';
-import { auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getCart, addToCart as apiAddToCart, isAuthenticated } from '../services/api';
 
 const CartContext = createContext();
 
@@ -13,12 +11,13 @@ export const CartProvider = ({ children }) => {
     const [lastAddedItem, setLastAddedItem] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Listen to Firebase auth state changes
+    // Check auth state on mount and when localStorage changes
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setIsLoggedIn(!!user);
-            if (user) {
-                // User is signed in, fetch cart
+        const checkAuth = () => {
+            const loggedIn = isAuthenticated();
+            setIsLoggedIn(loggedIn);
+
+            if (loggedIn) {
                 fetchCartCount();
             } else {
                 // User is signed out, load guest cart
@@ -26,14 +25,18 @@ export const CartProvider = ({ children }) => {
                 const count = cart.reduce((acc, item) => acc + item.quantity, 0);
                 setCartCount(count);
             }
-        });
+        };
 
-        return () => unsubscribe();
+        checkAuth();
+
+        // Listen for storage changes (login/logout in other tabs)
+        window.addEventListener('storage', checkAuth);
+        return () => window.removeEventListener('storage', checkAuth);
     }, []);
 
     const fetchCartCount = async () => {
-        const token = localStorage.getItem('token');
-        if (token && auth.currentUser) {
+        const token = localStorage.getItem('authToken');
+        if (token && isAuthenticated()) {
             try {
                 const cartItems = await getCart();
                 const count = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -50,10 +53,10 @@ export const CartProvider = ({ children }) => {
     };
 
     const addToCart = async (product, quantity = 1) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         let success = false;
 
-        if (token && auth.currentUser) {
+        if (token && isAuthenticated()) {
             try {
                 await apiAddToCart(product.id, quantity);
                 success = true;
@@ -94,8 +97,15 @@ export const CartProvider = ({ children }) => {
         setLastAddedItem(null);
     };
 
+    // Function to refresh auth state (call after login/logout)
+    const refreshAuthState = () => {
+        const loggedIn = isAuthenticated();
+        setIsLoggedIn(loggedIn);
+        fetchCartCount();
+    };
+
     return (
-        <CartContext.Provider value={{ cartCount, addToCart, isModalOpen, lastAddedItem, closeModal, fetchCartCount, isLoggedIn }}>
+        <CartContext.Provider value={{ cartCount, addToCart, isModalOpen, lastAddedItem, closeModal, fetchCartCount, isLoggedIn, refreshAuthState }}>
             {children}
         </CartContext.Provider>
     );
