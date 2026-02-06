@@ -1,9 +1,13 @@
 
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
+    const location = useLocation();
+    if (location.pathname === '/checkout') return null;
+
     return (
         <div className="footer-section">
             <h2 className="footer-heading">Join our mailing list!</h2>

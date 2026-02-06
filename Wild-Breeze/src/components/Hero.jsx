@@ -53,7 +53,15 @@ const Hero = ({ setPromoText = () => { } }) => {
         return 'slide-waiting';
     };
 
-    if (slides.length === 0) return null; // Or a loading skeleton
+    if (slides.length === 0) {
+        return (
+            <div className="hero-wrapper">
+                <div className="hero-container" style={{ backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="loading-spinner" style={{ color: '#333' }}>Loading...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="hero-wrapper">

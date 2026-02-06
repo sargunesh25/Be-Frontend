@@ -11,6 +11,8 @@ import Shop from './pages/Shop';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Account from './pages/Account';
+import ProductDetails from './pages/ProductDetails';
+import Checkout from './pages/Checkout';
 import { CartProvider } from './context/CartContext';
 import AddedToCartModal from './components/AddedToCartModal';
 import DiscountModal from './components/DiscountModal';
@@ -50,9 +52,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
           <Footer />
         </CartProvider>

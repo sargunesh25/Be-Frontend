@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronDown, ShoppingBag } from 'lucide-react';
 import './Shop.css';
 import '../components/ProductGrid.css'; // Reuse product grid styles
@@ -170,28 +171,17 @@ const Shop = () => {
             ) : (
                 <div className="product-grid">
                     {products.map((product) => (
-                        <div key={product.id} className="product-card">
+                        <Link to={`/product/${product.id}`} key={product.id} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <div className="product-image-container">
                                 {product.is_sale && <span className="sale-badge">Sale</span>}
                                 <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.title} className="product-image" />
-
-                                <div
-                                    className="cart-icon-overlay"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddToCart(product);
-                                    }}
-                                >
-                                    <span className="add-text">Add to Cart</span>
-                                    <ShoppingBag size={18} />
-                                </div>
                             </div>
                             <div className="product-title">{product.title}</div>
                             <div className="product-price">
                                 {product.is_sale && <span className="original-price">${product.original_price}</span>}
                                 ${product.price}
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}

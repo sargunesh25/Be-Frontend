@@ -79,6 +79,18 @@ export const getProducts = async (filters = {}) => {
     }
 };
 
+export const getProduct = async (id) => {
+    try {
+        const products = await getProducts();
+        // Compare as strings to be safe
+        const product = products.find(p => p.id.toString() === id.toString());
+        return product || null;
+    } catch (error) {
+        console.error(`Error fetching product ${id}:`, error);
+        return null;
+    }
+};
+
 
 // ==================== HERO SLIDES ====================
 
@@ -270,6 +282,29 @@ export const getPrintfulProducts = async (filters = {}) => {
     }
 };
 
+export const getShippingCountries = async () => {
+    try {
+        const result = await apiFetch('/api/printful/countries');
+        return result || [];
+    } catch (error) {
+        console.error('Error fetching shipping countries:', error);
+        return [];
+    }
+};
+
+export const submitOrder = async (orderData) => {
+    try {
+        const result = await apiFetch('/api/printful/orders', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+        return result;
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        throw error;
+    }
+};
+
 // Default export for compatibility
 export default {
     getProducts,
@@ -285,5 +320,7 @@ export default {
     removeFromCart,
     mergeCart,
     subscribeUser,
-    getPrintfulProducts
+    getPrintfulProducts,
+    getShippingCountries,
+    submitOrder
 };

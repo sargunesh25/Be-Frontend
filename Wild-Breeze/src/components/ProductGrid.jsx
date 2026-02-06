@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import './ProductGrid.css';
 import { getProducts } from '../services/api';
@@ -28,24 +29,13 @@ const ProductGrid = ({ title = "Looking for something cozy?" }) => {
 
             <div className="product-grid">
                 {products.map((product) => (
-                    <div key={product.id} className="product-card">
+                    <Link to={`/product/${product.id}`} key={product.id} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div className="product-image-container">
                             <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.title} className="product-image" />
-
-                            <div
-                                className="cart-icon-overlay"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddToCart(product);
-                                }}
-                            >
-                                <span className="add-text">Add to Cart</span>
-                                <ShoppingBag size={18} />
-                            </div>
                         </div>
                         <div className="product-title">{product.title}</div>
                         <div className="product-price">${product.price}</div>
-                    </div>
+                    </Link>
                 ))}
             </div>
 

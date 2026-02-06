@@ -12,6 +12,8 @@ const Navbar = ({ promoText = "All orders $100+ ship for free!" }) => {
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+    if (location.pathname === '/checkout') return null;
+
     return (
         <div className="navbar-container">
             <div className="promo-bar">
