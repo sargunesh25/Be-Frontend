@@ -6,13 +6,13 @@
     text-align: center;
 }
 
-.section-title {
+.product-grid-title {
     font-family: serif;
     /* Using the serif font from the previous screenshot's aesthetic */
     font-size: 32px;
     color: #333;
-    margin-bottom: 80px;
-    /* Increased bottom spacing significantly */
+    margin-bottom: 75px;
+    /* Reduced to half of previous 150px */
     font-weight: 400;
 }
 

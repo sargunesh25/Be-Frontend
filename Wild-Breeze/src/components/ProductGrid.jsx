@@ -25,7 +25,7 @@ const ProductGrid = ({ title = "Looking for something cozy?" }) => {
 
     return (
         <div className="product-section">
-            <h2 className="section-title">{title}</h2>
+            <h2 className="product-grid-title">{title}</h2>
 
             <div className="product-grid">
                 {products.map((product) => (
