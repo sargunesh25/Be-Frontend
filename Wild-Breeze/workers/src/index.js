@@ -65,7 +65,12 @@ function isAllowedOrigin(origin, env) {
     if (configuredOrigin && origin === configuredOrigin) return true;
 
     // Check against allowed list
-    return ALLOWED_ORIGINS.includes(origin);
+    if (ALLOWED_ORIGINS.includes(origin)) return true;
+
+    // Allow all Vercel preview/production domains
+    if (origin.endsWith('.vercel.app')) return true;
+
+    return false;
 }
 
 function corsHeaders(env, requestOrigin = null) {
