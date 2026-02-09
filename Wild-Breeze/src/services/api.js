@@ -123,12 +123,40 @@ export const submitContact = async (data) => {
     });
 };
 
+// ==================== INPUT VALIDATION ====================
+
+const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+    if (!password || password.length < 8) {
+        return { valid: false, message: 'Password must be at least 8 characters long' };
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+        return { valid: false, message: 'Password must contain at least one letter' };
+    }
+    if (!/[0-9]/.test(password)) {
+        return { valid: false, message: 'Password must contain at least one number' };
+    }
+    return { valid: true };
+};
+
 // ==================== AUTHENTICATION ====================
 
 export const loginUser = async (email, password) => {
+    // Client-side validation
+    if (!email || !validateEmail(email)) {
+        throw new Error('Please enter a valid email address');
+    }
+    if (!password) {
+        throw new Error('Password is required');
+    }
+
     const response = await apiFetch('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: email.toLowerCase(), password })
     });
 
     if (response.token) {
@@ -139,9 +167,24 @@ export const loginUser = async (email, password) => {
 };
 
 export const registerUser = async (email, password, firstName, lastName) => {
+    // Client-side validation
+    if (!email || !validateEmail(email)) {
+        throw new Error('Please enter a valid email address');
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+        throw new Error(passwordValidation.message);
+    }
+
     const response = await apiFetch('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email, password, firstName, lastName })
+        body: JSON.stringify({
+            email: email.toLowerCase(),
+            password,
+            firstName: firstName?.trim() || '',
+            lastName: lastName?.trim() || ''
+        })
     });
 
     return response;

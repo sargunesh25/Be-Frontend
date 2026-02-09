@@ -1,54 +1,235 @@
 /**
  * Wild-Breeze Cloudflare Workers API
- * Replaces Firebase backend with Cloudflare Workers + D1
+ * Production-Grade Security Implementation
  */
+
+// ==================== SECURITY HELPERS ====================
 
 // Simple UUID generator for IDs
 function generateId() {
     return crypto.randomUUID();
 }
 
-// CORS headers helper
-function corsHeaders(origin = '*') {
+// Rate limiting store (in-memory, resets on worker restart)
+const rateLimitStore = new Map();
+
+// Rate limiter for login attempts
+function checkRateLimit(ip, maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+    const now = Date.now();
+    const key = `login:${ip}`;
+    const record = rateLimitStore.get(key);
+
+    if (!record) {
+        rateLimitStore.set(key, { attempts: 1, firstAttempt: now });
+        return { allowed: true, remaining: maxAttempts - 1 };
+    }
+
+    // Reset if window has passed
+    if (now - record.firstAttempt > windowMs) {
+        rateLimitStore.set(key, { attempts: 1, firstAttempt: now });
+        return { allowed: true, remaining: maxAttempts - 1 };
+    }
+
+    // Check if exceeded
+    if (record.attempts >= maxAttempts) {
+        const retryAfter = Math.ceil((record.firstAttempt + windowMs - now) / 1000);
+        return { allowed: false, remaining: 0, retryAfter };
+    }
+
+    record.attempts++;
+    return { allowed: true, remaining: maxAttempts - record.attempts };
+}
+
+// Reset rate limit on successful login
+function resetRateLimit(ip) {
+    rateLimitStore.delete(`login:${ip}`);
+}
+
+// ==================== CORS & SECURITY HEADERS ====================
+
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+    'https://wild-breeze.pages.dev',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000'
+];
+
+function isAllowedOrigin(origin, env) {
+    if (!origin) return false;
+
+    // Check configured origin from env
+    const configuredOrigin = env.CORS_ORIGIN;
+    if (configuredOrigin === '*') return true;
+    if (configuredOrigin && origin === configuredOrigin) return true;
+
+    // Check against allowed list
+    return ALLOWED_ORIGINS.includes(origin);
+}
+
+function corsHeaders(env, requestOrigin = null) {
+    // Check if request origin is allowed
+    if (requestOrigin && isAllowedOrigin(requestOrigin, env)) {
+        return {
+            'Access-Control-Allow-Origin': requestOrigin,
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400',
+        };
+    }
+
+    // Default to configured origin
+    const defaultOrigin = env.CORS_ORIGIN || 'https://wild-breeze.pages.dev';
     return {
-        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Origin': defaultOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
     };
 }
 
-// JSON response helper
-function jsonResponse(data, status = 200, headers = {}) {
+function securityHeaders() {
+    return {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://api.printful.com;",
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    };
+}
+
+// JSON response helper with security headers
+function jsonResponse(data, status = 200, env = {}, requestOrigin = null) {
     return new Response(JSON.stringify(data), {
         status,
         headers: {
             'Content-Type': 'application/json',
-            ...corsHeaders(),
-            ...headers
+            ...corsHeaders(env, requestOrigin),
+            ...securityHeaders()
         }
     });
 }
 
-// Error response helper
-function errorResponse(message, status = 400) {
-    return jsonResponse({ error: message }, status);
+// Error response helper - doesn't expose internal details
+function errorResponse(message, status = 400, env = {}, requestOrigin = null) {
+    return jsonResponse({ error: message }, status, env, requestOrigin);
 }
 
-// Simple password hashing using Web Crypto API
+// ==================== INPUT VALIDATION ====================
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validatePassword(password) {
+    // Minimum 8 characters, at least one letter and one number
+    if (password.length < 8) {
+        return { valid: false, message: 'Password must be at least 8 characters long' };
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+        return { valid: false, message: 'Password must contain at least one letter' };
+    }
+    if (!/[0-9]/.test(password)) {
+        return { valid: false, message: 'Password must contain at least one number' };
+    }
+    return { valid: true };
+}
+
+function sanitizeString(str, maxLength = 1000) {
+    if (typeof str !== 'string') return '';
+    // Remove potentially dangerous characters and limit length
+    return str.slice(0, maxLength).replace(/[<>]/g, '');
+}
+
+// ==================== SECURE PASSWORD HASHING (PBKDF2) ====================
+
 async function hashPassword(password) {
     const encoder = new TextEncoder();
-    const data = encoder.encode(password + 'wild-breeze-salt');
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode(...new Uint8Array(hash)));
+
+    // Generate a random salt
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+
+    // Import password as key material
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(password),
+        'PBKDF2',
+        false,
+        ['deriveBits']
+    );
+
+    // Derive key using PBKDF2 with 100,000 iterations
+    const derivedBits = await crypto.subtle.deriveBits(
+        {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 100000,
+            hash: 'SHA-256'
+        },
+        keyMaterial,
+        256
+    );
+
+    // Combine salt and hash for storage
+    const hashArray = new Uint8Array(derivedBits);
+    const combined = new Uint8Array(salt.length + hashArray.length);
+    combined.set(salt);
+    combined.set(hashArray, salt.length);
+
+    return btoa(String.fromCharCode(...combined));
 }
 
-async function verifyPassword(password, hash) {
-    const passwordHash = await hashPassword(password);
-    return passwordHash === hash;
+async function verifyPassword(password, storedHash) {
+    try {
+        const encoder = new TextEncoder();
+
+        // Decode the stored hash
+        const combined = Uint8Array.from(atob(storedHash), c => c.charCodeAt(0));
+
+        // Extract salt (first 16 bytes) and hash (remaining bytes)
+        const salt = combined.slice(0, 16);
+        const storedHashBytes = combined.slice(16);
+
+        // Import password as key material
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(password),
+            'PBKDF2',
+            false,
+            ['deriveBits']
+        );
+
+        // Derive key using same parameters
+        const derivedBits = await crypto.subtle.deriveBits(
+            {
+                name: 'PBKDF2',
+                salt: salt,
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            256
+        );
+
+        const newHashBytes = new Uint8Array(derivedBits);
+
+        // Constant-time comparison to prevent timing attacks
+        if (newHashBytes.length !== storedHashBytes.length) return false;
+        let result = 0;
+        for (let i = 0; i < newHashBytes.length; i++) {
+            result |= newHashBytes[i] ^ storedHashBytes[i];
+        }
+        return result === 0;
+    } catch {
+        return false;
+    }
 }
 
-// JWT implementation using Web Crypto API
+// ==================== JWT IMPLEMENTATION ====================
+
 async function createJWT(payload, secret) {
     const header = { alg: 'HS256', typ: 'JWT' };
 
@@ -56,6 +237,7 @@ async function createJWT(payload, secret) {
     const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, '');
     const payloadB64 = btoa(JSON.stringify({
         ...payload,
+        iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
     })).replace(/=/g, '');
 
@@ -104,19 +286,33 @@ async function verifyJWT(token, secret) {
     }
 }
 
-// Auth middleware
+// ==================== AUTH MIDDLEWARE ====================
+
 async function authenticateRequest(request, env) {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
 
+    const jwtSecret = env.JWT_SECRET;
+    if (!jwtSecret) {
+        console.error('JWT_SECRET not configured');
+        return null;
+    }
+
     const token = authHeader.substring(7);
-    const jwtSecret = env.JWT_SECRET || 'default-dev-secret';
     return await verifyJWT(token, jwtSecret);
 }
 
-// Router
+// Get client IP for rate limiting
+function getClientIP(request) {
+    return request.headers.get('CF-Connecting-IP') ||
+        request.headers.get('X-Forwarded-For')?.split(',')[0] ||
+        'unknown';
+}
+
+// ==================== ROUTER ====================
+
 class Router {
     constructor() {
         this.routes = [];
@@ -135,10 +331,17 @@ class Router {
         const url = new URL(request.url);
         const method = request.method;
         const path = url.pathname;
+        const requestOrigin = request.headers.get('Origin');
 
         // Handle CORS preflight
         if (method === 'OPTIONS') {
-            return new Response(null, { status: 204, headers: corsHeaders() });
+            return new Response(null, {
+                status: 204,
+                headers: {
+                    ...corsHeaders(env, requestOrigin),
+                    ...securityHeaders()
+                }
+            });
         }
 
         for (const route of this.routes) {
@@ -149,13 +352,13 @@ class Router {
                         return await route.handler(request, env, ctx, match.params, url.searchParams);
                     } catch (error) {
                         console.error('Route error:', error);
-                        return errorResponse('Internal server error', 500);
+                        return errorResponse('An error occurred', 500, env, requestOrigin);
                     }
                 }
             }
         }
 
-        return errorResponse('Not found', 404);
+        return errorResponse('Not found', 404, env, requestOrigin);
     }
 
     matchPath(pattern, path) {
@@ -183,16 +386,36 @@ const router = new Router();
 // ==================== AUTH ROUTES ====================
 
 router.post('/api/auth/register', async (request, env) => {
-    const { email, password, firstName, lastName } = await request.json();
+    const requestOrigin = request.headers.get('Origin');
 
-    if (!email || !password) {
-        return errorResponse('Email and password are required');
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { email, password, firstName, lastName } = body;
+
+    // Validate email
+    if (!email || !validateEmail(email)) {
+        return errorResponse('Valid email is required', 400, env, requestOrigin);
+    }
+
+    // Validate password
+    if (!password) {
+        return errorResponse('Password is required', 400, env, requestOrigin);
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+        return errorResponse(passwordValidation.message, 400, env, requestOrigin);
     }
 
     // Check if user exists
-    const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
+    const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email.toLowerCase()).first();
     if (existing) {
-        return errorResponse('Email already registered');
+        return errorResponse('Email already registered', 400, env, requestOrigin);
     }
 
     const id = generateId();
@@ -200,29 +423,59 @@ router.post('/api/auth/register', async (request, env) => {
 
     await env.DB.prepare(
         'INSERT INTO users (id, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)'
-    ).bind(id, email, passwordHash, firstName || '', lastName || '').run();
+    ).bind(id, email.toLowerCase(), passwordHash, sanitizeString(firstName || ''), sanitizeString(lastName || '')).run();
 
-    return jsonResponse({ id, email }, 201);
+    return jsonResponse({ id, email: email.toLowerCase() }, 201, env, requestOrigin);
 });
 
 router.post('/api/auth/login', async (request, env) => {
-    const { email, password } = await request.json();
+    const requestOrigin = request.headers.get('Origin');
+    const clientIP = getClientIP(request);
 
-    if (!email || !password) {
-        return errorResponse('Email and password are required');
+    // Check rate limit
+    const rateLimit = checkRateLimit(clientIP);
+    if (!rateLimit.allowed) {
+        return jsonResponse(
+            { error: 'Too many login attempts. Please try again later.' },
+            429,
+            env,
+            requestOrigin
+        );
     }
 
-    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { email, password } = body;
+
+    if (!email || !password) {
+        return errorResponse('Email and password are required', 400, env, requestOrigin);
+    }
+
+    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email.toLowerCase()).first();
     if (!user) {
-        return errorResponse('Invalid credentials', 401);
+        return errorResponse('Invalid credentials', 401, env, requestOrigin);
     }
 
     const valid = await verifyPassword(password, user.password_hash);
     if (!valid) {
-        return errorResponse('Invalid credentials', 401);
+        return errorResponse('Invalid credentials', 401, env, requestOrigin);
     }
 
-    const jwtSecret = env.JWT_SECRET || 'default-dev-secret';
+    // Check for JWT secret - FAIL if not configured
+    const jwtSecret = env.JWT_SECRET;
+    if (!jwtSecret) {
+        console.error('CRITICAL: JWT_SECRET not configured');
+        return errorResponse('Authentication service unavailable', 503, env, requestOrigin);
+    }
+
+    // Reset rate limit on successful login
+    resetRateLimit(clientIP);
+
     const token = await createJWT({ userId: user.id, email: user.email }, jwtSecret);
 
     return jsonResponse({
@@ -233,12 +486,14 @@ router.post('/api/auth/login', async (request, env) => {
             firstName: user.first_name,
             lastName: user.last_name
         }
-    });
+    }, 200, env, requestOrigin);
 });
 
 // ==================== PRODUCTS ROUTES ====================
 
 router.get('/api/products', async (request, env, ctx, params, query) => {
+    const requestOrigin = request.headers.get('Origin');
+
     let products = await env.DB.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
     let results = products.results || [];
 
@@ -284,12 +539,14 @@ router.get('/api/products', async (request, env, ctx, params, query) => {
         is_sale: p.is_sale === 1
     }));
 
-    return jsonResponse(results);
+    return jsonResponse(results, 200, env, requestOrigin);
 });
 
 // ==================== HERO SLIDES ROUTES ====================
 
 router.get('/api/hero-slides', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
+
     const slides = await env.DB.prepare(
         'SELECT * FROM hero_slides WHERE is_active = 1 ORDER BY sort_order ASC'
     ).all();
@@ -299,35 +556,55 @@ router.get('/api/hero-slides', async (request, env) => {
         is_active: s.is_active === 1
     }));
 
-    return jsonResponse(results);
+    return jsonResponse(results, 200, env, requestOrigin);
 });
 
 // ==================== FAQs ROUTES ====================
 
 router.get('/api/faqs', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
     const faqs = await env.DB.prepare('SELECT * FROM faqs ORDER BY sort_order ASC').all();
-    return jsonResponse(faqs.results || []);
+    return jsonResponse(faqs.results || [], 200, env, requestOrigin);
 });
 
 // ==================== CONTACT ROUTES ====================
 
 router.post('/api/contact', async (request, env) => {
-    const { name, email, message } = await request.json();
+    const requestOrigin = request.headers.get('Origin');
+
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { name, email, message } = body;
+
+    // Validate inputs
+    if (!message || message.trim().length === 0) {
+        return errorResponse('Message is required', 400, env, requestOrigin);
+    }
+
+    if (email && !validateEmail(email)) {
+        return errorResponse('Invalid email format', 400, env, requestOrigin);
+    }
 
     const id = generateId();
     await env.DB.prepare(
         'INSERT INTO contact_messages (id, name, email, message) VALUES (?, ?, ?, ?)'
-    ).bind(id, name || '', email || '', message || '').run();
+    ).bind(id, sanitizeString(name || ''), email || '', sanitizeString(message)).run();
 
-    return jsonResponse({ success: true, message: 'Message received' }, 201);
+    return jsonResponse({ success: true, message: 'Message received' }, 201, env, requestOrigin);
 });
 
 // ==================== CART ROUTES ====================
 
 router.get('/api/cart', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
     const user = await authenticateRequest(request, env);
     if (!user) {
-        return errorResponse('Unauthorized', 401);
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
     }
 
     const cartItems = await env.DB.prepare(`
@@ -337,16 +614,28 @@ router.get('/api/cart', async (request, env) => {
         WHERE ci.user_id = ?
     `).bind(user.userId).all();
 
-    return jsonResponse(cartItems.results || []);
+    return jsonResponse(cartItems.results || [], 200, env, requestOrigin);
 });
 
 router.post('/api/cart', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
     const user = await authenticateRequest(request, env);
     if (!user) {
-        return errorResponse('Unauthorized', 401);
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
     }
 
-    const { productId, quantity = 1 } = await request.json();
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { productId, quantity = 1 } = body;
+
+    if (!productId) {
+        return errorResponse('Product ID is required', 400, env, requestOrigin);
+    }
 
     // Check if item exists in cart
     const existing = await env.DB.prepare(
@@ -358,40 +647,51 @@ router.post('/api/cart', async (request, env) => {
         await env.DB.prepare(
             'UPDATE cart_items SET quantity = quantity + ? WHERE id = ?'
         ).bind(quantity, existing.id).run();
-        return jsonResponse({ id: existing.id, quantity: existing.quantity + quantity });
+        return jsonResponse({ id: existing.id, quantity: existing.quantity + quantity }, 200, env, requestOrigin);
     } else {
         // Add new item
         const id = generateId();
         await env.DB.prepare(
             'INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES (?, ?, ?, ?)'
         ).bind(id, user.userId, productId.toString(), quantity).run();
-        return jsonResponse({ id, productId, quantity }, 201);
+        return jsonResponse({ id, productId, quantity }, 201, env, requestOrigin);
     }
 });
 
 router.delete('/api/cart/:productId', async (request, env, ctx, params) => {
+    const requestOrigin = request.headers.get('Origin');
     const user = await authenticateRequest(request, env);
     if (!user) {
-        return errorResponse('Unauthorized', 401);
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
     }
 
     await env.DB.prepare(
         'DELETE FROM cart_items WHERE user_id = ? AND product_id = ?'
     ).bind(user.userId, params.productId).run();
 
-    return jsonResponse({ message: 'Item removed' });
+    return jsonResponse({ message: 'Item removed' }, 200, env, requestOrigin);
 });
 
 router.post('/api/cart/merge', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
     const user = await authenticateRequest(request, env);
     if (!user) {
-        return errorResponse('Unauthorized', 401);
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
     }
 
-    const { guestCart } = await request.json();
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { guestCart } = body;
 
     if (Array.isArray(guestCart)) {
         for (const item of guestCart) {
+            if (!item.product_id) continue;
+
             const existing = await env.DB.prepare(
                 'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?'
             ).bind(user.userId, item.product_id.toString()).first();
@@ -399,12 +699,12 @@ router.post('/api/cart/merge', async (request, env) => {
             if (existing) {
                 await env.DB.prepare(
                     'UPDATE cart_items SET quantity = quantity + ? WHERE id = ?'
-                ).bind(item.quantity, existing.id).run();
+                ).bind(item.quantity || 1, existing.id).run();
             } else {
                 const id = generateId();
                 await env.DB.prepare(
                     'INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES (?, ?, ?, ?)'
-                ).bind(id, user.userId, item.product_id.toString(), item.quantity).run();
+                ).bind(id, user.userId, item.product_id.toString(), item.quantity || 1).run();
             }
         }
     }
@@ -417,40 +717,56 @@ router.post('/api/cart/merge', async (request, env) => {
         WHERE ci.user_id = ?
     `).bind(user.userId).all();
 
-    return jsonResponse(cartItems.results || []);
+    return jsonResponse(cartItems.results || [], 200, env, requestOrigin);
 });
 
 // ==================== SUBSCRIBE ROUTES ====================
 
 router.post('/api/subscribe', async (request, env) => {
-    const { phoneNumber } = await request.json();
+    const requestOrigin = request.headers.get('Origin');
 
-    if (!phoneNumber) {
-        return errorResponse('Phone number is required');
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { phoneNumber } = body;
+
+    if (!phoneNumber || phoneNumber.trim().length === 0) {
+        return errorResponse('Phone number is required', 400, env, requestOrigin);
+    }
+
+    // Basic phone number validation (digits, spaces, dashes, plus allowed)
+    const cleanPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
+    if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+        return errorResponse('Invalid phone number format', 400, env, requestOrigin);
     }
 
     // Check if already exists
     const existing = await env.DB.prepare(
         'SELECT id FROM discount_signups WHERE phone_number = ?'
-    ).bind(phoneNumber).first();
+    ).bind(cleanPhone).first();
 
     if (!existing) {
         const id = generateId();
         await env.DB.prepare(
             'INSERT INTO discount_signups (id, phone_number) VALUES (?, ?)'
-        ).bind(id, phoneNumber).run();
+        ).bind(id, cleanPhone).run();
     }
 
-    return jsonResponse({ message: 'Discount activated!', discountActive: true });
+    return jsonResponse({ message: 'Discount activated!', discountActive: true }, 200, env, requestOrigin);
 });
 
 // ==================== PRINTFUL PROXY ROUTES ====================
 
 router.get('/api/printful/products', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
     const printfulToken = env.PRINTFUL_API_TOKEN;
 
     if (!printfulToken) {
-        return errorResponse('Printful API not configured', 500);
+        return errorResponse('Printful API not configured', 500, env, requestOrigin);
     }
 
     try {
@@ -508,15 +824,21 @@ router.get('/api/printful/products', async (request, env) => {
         );
 
         const products = productsWithDetails.filter(p => p !== null);
-        return jsonResponse({ products });
+        return jsonResponse({ products }, 200, env, requestOrigin);
     } catch (error) {
-        return errorResponse('Failed to fetch Printful products', 500);
+        console.error('Printful API error:', error);
+        return errorResponse('Failed to fetch products', 500, env, requestOrigin);
     }
 });
 
 // Health check
-router.get('/api/health', async () => {
-    return jsonResponse({ status: 'ok', timestamp: new Date().toISOString() });
+router.get('/api/health', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
+    return jsonResponse({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        version: '2.0.0'
+    }, 200, env, requestOrigin);
 });
 
 // Main export

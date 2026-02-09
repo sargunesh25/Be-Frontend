@@ -10,7 +10,10 @@ database_id = "c8dc2832-8184-4658-8640-421041ae44d3"
 
 # Environment variables (set via wrangler secret put)
 # PRINTFUL_API_TOKEN - Your Printful API token
-# JWT_SECRET - Secret key for JWT signing
+# JWT_SECRET - Secret key for JWT signing (REQUIRED - use: wrangler secret put JWT_SECRET)
 
 [vars]
-CORS_ORIGIN = "*"
+# IMPORTANT: Replace with your actual production domain before deploying
+# Examples: "https://wild-breeze.pages.dev" or "https://yourdomain.com"
+CORS_ORIGIN = "https://wild-breeze.pages.dev"
+
