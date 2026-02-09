@@ -116,7 +116,7 @@ const faqs = [
     },
     {
         question: 'DO YOU ACCEPT RETURNS/EXCHANGES?',
-        answer: 'Sun Milk only accepts returns, not exchanges. If you would like an item in a different size, a separate order will need to be placed (a free shipping code will be provided for your re-order). All returns must be made within 30 days of the delivery date and the items must be returned in new, unworn condition with tags to be valid.',
+        answer: 'Wild Breeze only accepts returns, not exchanges. If you would like an item in a different size, a separate order will need to be placed (a free shipping code will be provided for your re-order). All returns must be made within 30 days of the delivery date and the items must be returned in new, unworn condition with tags to be valid.',
         sort_order: 3
     },
     {

@@ -1,5 +1,6 @@
 .cart-page-container {
-    padding: 60px 20px;
+    padding: 40px 20px 20px 20px;
+    /* Reduced bottom padding */
     max-width: 1200px;
     margin: 0 auto;
     font-family: 'Jost', sans-serif;
@@ -58,8 +59,8 @@
 .cart-row {
     display: flex;
     align-items: flex-start;
-    padding-bottom: 30px;
-    margin-bottom: 30px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .col-product-data {
@@ -156,9 +157,9 @@
 .cart-footer-section {
     display: flex;
     justify-content: space-between;
-    margin-top: 40px;
+    margin-top: 20px;
     border-top: 1px solid #e0e0e0;
-    padding-top: 40px;
+    padding-top: 20px;
 }
 
 .special-instructions {

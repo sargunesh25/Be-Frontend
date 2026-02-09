@@ -24,7 +24,7 @@ const FAQ = () => {
                 <div className="faq-section">
                     <h2 className="faq-question">DO YOU ACCEPT RETURNS/EXCHANGES?</h2>
                     <p className="faq-answer">
-                        Sun Milk only accepts returns, not exchanges. If you would like an item in a different size, a separate order will need to be placed (a free shipping code will be provided for your re-order 😊). All returns must be made within 30 days of the delivery date and the items must be returned in new, unworn condition with tags to be valid. Prior approval is required. Shipping expenses are at the cost of the customer and are not included in the refunded amount. If there is a problem with your order, please reach out to sunmilkshop@gmail.com.
+                        Wild Breeze only accepts returns, not exchanges. If you would like an item in a different size, a separate order will need to be placed (a free shipping code will be provided for your re-order 😊). All returns must be made within 30 days of the delivery date and the items must be returned in new, unworn condition with tags to be valid. Prior approval is required. Shipping expenses are at the cost of the customer and are not included in the refunded amount. If there is a problem with your order, please reach out to wildbreezeshop@gmail.com.
                     </p>
                 </div>
 
@@ -38,7 +38,7 @@ const FAQ = () => {
                 <div className="faq-section">
                     <h2 className="faq-question">MY PACKAGE SAYS IT'S BEEN DELIVERED, BUT I DON'T HAVE IT. WHAT SHOULD I DO?</h2>
                     <p className="faq-answer">
-                        Sometimes, packages are marked as delivered prematurely and often times show up within the next few days. If it doesn't turn up, I'd suggest checking with neighbors, confirming that you entered the correct shipping address, and/or inquiring at your local post office for additional tracking information. To file a claim with USPS for a lost domestic package, go <a href="https://www.usps.com/help/claims.htm" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: 'inherit' }}>here</a>. Sun Milk is not responsible for lost or stolen packages.
+                        Sometimes, packages are marked as delivered prematurely and often times show up within the next few days. If it doesn't turn up, I'd suggest checking with neighbors, confirming that you entered the correct shipping address, and/or inquiring at your local post office for additional tracking information. To file a claim with USPS for a lost domestic package, go <a href="https://www.usps.com/help/claims.htm" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: 'inherit' }}>here</a>. Wild Breeze is not responsible for lost or stolen packages.
                     </p>
                 </div>
             </div>

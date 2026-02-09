@@ -1,10 +1,31 @@
 /* Scoped styles for Product Details Page */
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-box {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
 .product-details-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 40px 20px;
     font-family: 'Inter', sans-serif;
     color: #333;
+    min-height: 600px;
+    /* Reserve minimum height to prevent footer jump */
 }
 
 .product-details-container .product-details-grid {

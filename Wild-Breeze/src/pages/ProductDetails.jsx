@@ -10,12 +10,17 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
-    const [selectedSize, setSelectedSize] = useState('');
+    const [selectedSize, setSelectedSize] = useState('M'); // Default to M
     const [selectedColor, setSelectedColor] = useState('');
+    const [validationError, setValidationError] = useState('');
     const { addToCart } = useCart();
 
     // Accordion states
     const [openAccordion, setOpenAccordion] = useState(null);
+
+    // Available options
+    const sizes = ['S', 'M', 'L', 'XL', '2XL'];
+    const colors = ['Cream', 'Sea Foam', 'Navy'];
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -24,10 +29,9 @@ const ProductDetails = () => {
             setProduct(data);
             setLoading(false);
 
-            // Set defaults if variants exist
-            if (data?.variants && data.variants.length > 0) {
-                // Logic to extract unique sizes/colors would go here.
-                // For now, we'll simulate or just default if we can parse them.
+            // Set default color to first available color
+            if (colors.length > 0 && !selectedColor) {
+                setSelectedColor(colors[0]);
             }
         };
         fetchProduct();
@@ -38,9 +42,26 @@ const ProductDetails = () => {
     };
 
     const handleAddToCart = () => {
+        // Validate selections
+        if (!selectedSize) {
+            setValidationError('Please select a size');
+            return;
+        }
+        if (!selectedColor) {
+            setValidationError('Please select a color');
+            return;
+        }
+
+        // Clear any validation error
+        setValidationError('');
+
         if (product) {
-            addToCart(product, quantity); // Context might need an update to handle quantity if not already supported
-            // Optional: Open cart drawer or show notification
+            // Add to cart with selected options
+            addToCart({
+                ...product,
+                selectedSize,
+                selectedColor,
+            }, quantity);
         }
     };
 
@@ -48,12 +69,46 @@ const ProductDetails = () => {
         setOpenAccordion(openAccordion === section ? null : section);
     };
 
-    if (loading) return <div className="loading-container">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="product-details-container">
+                <div className="product-details-grid">
+                    {/* Skeleton: Image Gallery */}
+                    <div className="product-gallery">
+                        <div className="main-image-wrapper skeleton-box" style={{ aspectRatio: '1/1', background: '#f0f0f0' }}></div>
+                        <div className="thumbnail-grid">
+                            <div className="skeleton-box" style={{ aspectRatio: '1/1', background: '#f0f0f0' }}></div>
+                            <div className="skeleton-box" style={{ aspectRatio: '1/1', background: '#f0f0f0' }}></div>
+                        </div>
+                    </div>
+                    {/* Skeleton: Product Info */}
+                    <div className="product-info-column">
+                        <div className="skeleton-box" style={{ width: '80px', height: '16px', background: '#f0f0f0', marginBottom: '10px' }}></div>
+                        <div className="skeleton-box" style={{ width: '280px', height: '40px', background: '#f0f0f0', marginBottom: '10px' }}></div>
+                        <div className="skeleton-box" style={{ width: '100px', height: '24px', background: '#f0f0f0', marginBottom: '30px' }}></div>
+                        <div className="skeleton-box" style={{ width: '100%', height: '20px', background: '#f0f0f0', marginBottom: '20px' }}></div>
+                        {/* Size buttons skeleton */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="skeleton-box" style={{ width: '50px', height: '36px', background: '#f0f0f0', borderRadius: '20px' }}></div>)}
+                        </div>
+                        {/* Color buttons skeleton */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
+                            {[1, 2, 3].map(i => <div key={i} className="skeleton-box" style={{ width: '70px', height: '36px', background: '#f0f0f0', borderRadius: '20px' }}></div>)}
+                        </div>
+                        {/* Add to cart button skeleton */}
+                        <div className="skeleton-box" style={{ width: '100%', height: '50px', background: '#f0f0f0', marginBottom: '30px' }}></div>
+                        {/* Description skeleton */}
+                        <div className="skeleton-box" style={{ width: '100%', height: '80px', background: '#f0f0f0', marginBottom: '30px' }}></div>
+                        {/* Accordions skeleton */}
+                        <div style={{ width: '100%' }}>
+                            {[1, 2, 3].map(i => <div key={i} className="skeleton-box" style={{ width: '100%', height: '50px', background: '#f0f0f0', marginBottom: '5px' }}></div>)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     if (!product) return <div className="error-container">Product not found</div>;
-
-    // Dummy data for visual completeness matching the Screenshot
-    const sizes = ['S', 'M', 'L', 'XL', '2XL'];
-    const colors = ['Cream', 'Sea Foam', 'Navy'];
 
     return (
         <div className="product-details-container">
@@ -77,7 +132,7 @@ const ProductDetails = () => {
 
                 {/* Right Column: Details */}
                 <div className="product-info-column">
-                    <div className="product-breadcrumb">Sun Milk</div>
+                    <div className="product-breadcrumb">Wild Breeze</div>
                     <h1 className="product-title">{product.title}</h1>
                     <div className="product-price">${product.price} USD</div>
 
@@ -93,7 +148,7 @@ const ProductDetails = () => {
                                 <button
                                     key={size}
                                     className={`variant-btn ${selectedSize === size ? 'selected' : ''}`}
-                                    onClick={() => setSelectedSize(size)}
+                                    onClick={() => { setSelectedSize(size); setValidationError(''); }}
                                 >
                                     {size}
                                 </button>
@@ -109,7 +164,7 @@ const ProductDetails = () => {
                                 <button
                                     key={color}
                                     className={`variant-btn ${selectedColor === color ? 'selected' : ''}`}
-                                    onClick={() => setSelectedColor(color)}
+                                    onClick={() => { setSelectedColor(color); setValidationError(''); }}
                                 >
                                     {color}
                                 </button>
@@ -126,6 +181,13 @@ const ProductDetails = () => {
                             <button onClick={() => handleQuantityChange(1)}><Plus size={16} /></button>
                         </div>
                     </div>
+
+                    {/* Validation Error */}
+                    {validationError && (
+                        <div className="validation-error" style={{ color: '#dc3545', marginBottom: '10px', fontSize: '0.9rem' }}>
+                            {validationError}
+                        </div>
+                    )}
 
                     {/* Add to Cart */}
                     <button className="add-to-cart-btn-large" onClick={handleAddToCart}>

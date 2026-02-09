@@ -35,12 +35,44 @@ const Footer = () => {
             </div>
 
             <div className="footer-bottom">
-                {/* Placeholder for payment icons - using a generic image URL or similar representation */}
-                <img
-                    src="https://cdn.shopify.com/s/files/1/0458/5727/6068/files/payment_icons.png?v=1613666248"
-                    alt="Payment Methods"
-                    className="payment-icons" // Changed in CSS to be fully opaque
-                />
+                <div className="payment-icons">
+                    {/* Visa */}
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                        alt="Visa"
+                        className="payment-icon"
+                    />
+                    {/* Mastercard */}
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                        alt="Mastercard"
+                        className="payment-icon"
+                    />
+                    {/* PayPal */}
+                    <img
+                        src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/paypal.svg"
+                        alt="PayPal"
+                        className="payment-icon"
+                    />
+                    {/* RuPay */}
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/d/d1/RuPay.svg"
+                        alt="RuPay"
+                        className="payment-icon"
+                    />
+                    {/* UPI */}
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg"
+                        alt="UPI"
+                        className="payment-icon"
+                    />
+                    {/* Google Pay */}
+                    <img
+                        src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/googlepay.svg"
+                        alt="Google Pay"
+                        className="payment-icon"
+                    />
+                </div>
                 <p className="copyright-text">
                     &copy; 2026, Wild breeze
                 </p>

@@ -117,10 +117,32 @@
 }
 
 .payment-icons {
-    height: 25px;
-    /* Slightly larger */
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.payment-icon {
+    height: 22px;
     width: auto;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    /* Make all icons purely white */
+    filter: brightness(0) invert(1);
+}
+
+.payment-icon:hover {
     opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* Google Pay needs to be slightly larger to match visual weight */
+.payment-icon[alt="Google Pay"] {
+    height: 38px;
 }
 
 .copyright-text {
