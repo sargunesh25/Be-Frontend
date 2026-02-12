@@ -8,7 +8,7 @@ const Account = () => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         if (!token) {
             navigate('/login');
             return;
@@ -21,7 +21,7 @@ const Account = () => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         // Clear guest cart too if any residues, though usually we want to keep it? 
         // Standard behavior: clear local storage tokens.

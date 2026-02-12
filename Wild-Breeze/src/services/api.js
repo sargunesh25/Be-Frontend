@@ -187,6 +187,10 @@ export const registerUser = async (email, password, firstName, lastName) => {
         })
     });
 
+    if (response.token) {
+        setAuthToken(response.token);
+    }
+
     return response;
 };
 
@@ -215,17 +219,38 @@ export const getCart = async () => {
     }
 };
 
-export const addToCart = async (productId, quantity = 1) => {
+export const addToCart = async (productData, quantity = 1) => {
     try {
+        // If productData is just an ID (legacy), handle it gracefully or error?
+        // Assuming we update callers to pass object: { id, title, price, image_url, selectedSize, selectedColor }
+        const productId = productData.id || productData;
+        const title = productData.title;
+        const price = productData.price;
+        const imageUrl = productData.image_url;
+        const selectedSize = productData.selectedSize;
+        const selectedColor = productData.selectedColor;
+
         if (!isAuthenticated()) {
             // Add to guest cart in localStorage
             const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-            const existingIndex = guestCart.findIndex(item => item.product_id === productId.toString());
+            const existingIndex = guestCart.findIndex(item =>
+                item.product_id === productId.toString() &&
+                item.selectedSize === selectedSize &&
+                item.selectedColor === selectedColor
+            );
 
             if (existingIndex >= 0) {
                 guestCart[existingIndex].quantity += quantity;
             } else {
-                guestCart.push({ product_id: productId.toString(), quantity });
+                guestCart.push({
+                    product_id: productId.toString(),
+                    quantity,
+                    title,
+                    price,
+                    image_url: imageUrl,
+                    selectedSize,
+                    selectedColor
+                });
             }
 
             localStorage.setItem('guestCart', JSON.stringify(guestCart));
@@ -234,7 +259,10 @@ export const addToCart = async (productId, quantity = 1) => {
 
         return await apiFetch('/api/cart', {
             method: 'POST',
-            body: JSON.stringify({ productId, quantity })
+            body: JSON.stringify({
+                productId,
+                quantity
+            })
         });
     } catch (error) {
         console.error('Error adding to cart:', error);
@@ -269,7 +297,12 @@ export const mergeCart = async (guestCart) => {
 
         const result = await apiFetch('/api/cart/merge', {
             method: 'POST',
-            body: JSON.stringify({ guestCart })
+            body: JSON.stringify({
+                guestCart: guestCart.map(item => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity
+                }))
+            })
         });
 
         // Clear guest cart after merge

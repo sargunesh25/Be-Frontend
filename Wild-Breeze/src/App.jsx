@@ -8,6 +8,7 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Shop from './pages/Shop';
+import Orders from './pages/Orders'; // Import Orders
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Account from './pages/Account';
@@ -16,20 +17,23 @@ import Checkout from './pages/Checkout';
 import { CartProvider } from './context/CartContext';
 import AddedToCartModal from './components/AddedToCartModal';
 import DiscountModal from './components/DiscountModal';
+import AuthModal from './components/AuthModal'; // Import AuthModal
 import './components/DiscountModal.css'; // For trigger button styles
 
 function App() {
   const [promoText, setPromoText] = useState("All orders $100+ ship for free!");
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false); // Auth Modal State
   const [isTriggerVisible, setIsTriggerVisible] = useState(true);
 
   return (
     <div className="App">
       <Router>
         <CartProvider>
-          <Navbar promoText={promoText} />
+          <Navbar promoText={promoText} openAuth={() => setIsAuthOpen(true)} />
           <AddedToCartModal />
           <DiscountModal isOpen={isDiscountOpen} onClose={() => setIsDiscountOpen(false)} />
+          <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
 
           {isTriggerVisible && (
             <button className="discount-trigger-btn" onClick={() => setIsDiscountOpen(true)}>
@@ -52,6 +56,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/orders" element={<Orders />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />

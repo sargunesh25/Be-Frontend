@@ -213,3 +213,51 @@
     justify-content: center;
     border: 1px solid #fdfbf7;
 }
+
+/* Account Dropdown Styles */
+.account-dropdown-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.account-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 8px 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    border: 1px solid #f0f0f0;
+}
+
+.account-dropdown-item {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #333;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-align: left;
+    display: block;
+    border-left: 3px solid transparent;
+}
+
+.account-dropdown-item:hover {
+    background-color: #f9f9f9;
+    color: #3e5246;
+    border-left-color: #3e5246;
+}
+
+.account-dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 4px 0;
+}

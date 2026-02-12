@@ -15,5 +15,7 @@ database_id = "c8dc2832-8184-4658-8640-421041ae44d3"
 [vars]
 # IMPORTANT: Replace with your actual production domain before deploying
 # Examples: "https://wild-breeze.pages.dev" or "https://yourdomain.com"
-CORS_ORIGIN = "https://wild-breeze.pages.dev"
+CORS_ORIGIN = "http://localhost:5173"
+# JWT Secret for local development (use wrangler secret put JWT_SECRET for production)
+JWT_SECRET = "dev-jwt-secret-key-change-in-production-123456789"
 

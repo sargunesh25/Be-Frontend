@@ -1,0 +1,181 @@
+.auth-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    /* High z-index to sit above navbar */
+    backdrop-filter: blur(2px);
+}
+
+.auth-modal {
+    background-color: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.3s ease-out;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.auth-close-btn:hover {
+    color: #000;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.auth-title {
+    font-family: 'Jost', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.auth-subtitle {
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.auth-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Floating Label Styles */
+.input-group {
+    position: relative;
+    width: 100%;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px 0;
+    font-family: 'Jost', sans-serif;
+    font-size: 16px;
+    color: #333;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    outline: none;
+    background: transparent;
+    transition: border-color 0.2s;
+}
+
+.auth-input:focus {
+    border-bottom-color: #3e5246;
+    /* Focus color */
+}
+
+.floating-label {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    font-family: 'Jost', sans-serif;
+    font-size: 16px;
+    color: #999;
+    pointer-events: none;
+    transition: 0.2s ease all;
+}
+
+/* Float logic: when focused or has value */
+.auth-input:focus~.floating-label,
+.auth-input:not(:placeholder-shown)~.floating-label {
+    top: -10px;
+    font-size: 12px;
+    color: #3e5246;
+    font-weight: 500;
+}
+
+.auth-submit-btn {
+    background-color: #3e5246;
+    color: white;
+    border: none;
+    padding: 14px;
+    font-family: 'Jost', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 10px;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.auth-submit-btn:hover {
+    background-color: #2c3b32;
+}
+
+.toggle-auth {
+    margin-top: 20px;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.toggle-link {
+    color: #3e5246;
+    font-weight: 600;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 5px;
+    text-decoration: underline;
+}
+
+.auth-error {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #ffebee;
+    padding: 8px;
+    border-radius: 4px;
+    width: 100%;
+}

@@ -149,6 +149,14 @@ function sanitizeString(str, maxLength = 1000) {
     return str.slice(0, maxLength).replace(/[<>]/g, '');
 }
 
+function truncateString(str, num) {
+    if (!str) return '';
+    if (str.length <= num) {
+        return str;
+    }
+    return str.slice(0, num) + '...';
+}
+
 // ==================== SECURE PASSWORD HASHING (PBKDF2) ====================
 
 async function hashPassword(password) {
@@ -613,10 +621,10 @@ router.get('/api/cart', async (request, env) => {
     }
 
     const cartItems = await env.DB.prepare(`
-        SELECT ci.id, ci.quantity, ci.product_id, p.title, p.price, p.image_url
-        FROM cart_items ci
-        JOIN products p ON ci.product_id = p.id
-        WHERE ci.user_id = ?
+        SELECT id, quantity, product_id, created_at
+        FROM cart_items
+        WHERE user_id = ?
+        ORDER BY created_at DESC
     `).bind(user.userId).all();
 
     return jsonResponse(cartItems.results || [], 200, env, requestOrigin);
@@ -636,7 +644,8 @@ router.post('/api/cart', async (request, env) => {
         return errorResponse('Invalid request body', 400, env, requestOrigin);
     }
 
-    const { productId, quantity = 1 } = body;
+    const { productId, quantity = 1, title, price, imageUrl, selectedSize, selectedColor } = body;
+    console.log("Add to cart:", body);
 
     if (!productId) {
         return errorResponse('Product ID is required', 400, env, requestOrigin);
@@ -654,11 +663,16 @@ router.post('/api/cart', async (request, env) => {
         ).bind(quantity, existing.id).run();
         return jsonResponse({ id: existing.id, quantity: existing.quantity + quantity }, 200, env, requestOrigin);
     } else {
-        // Add new item
+        // Add new item (simple version)
         const id = generateId();
         await env.DB.prepare(
             'INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES (?, ?, ?, ?)'
-        ).bind(id, user.userId, productId.toString(), quantity).run();
+        ).bind(
+            id,
+            user.userId,
+            productId.toString(),
+            quantity
+        ).run();
         return jsonResponse({ id, productId, quantity }, 201, env, requestOrigin);
     }
 });
@@ -709,20 +723,162 @@ router.post('/api/cart/merge', async (request, env) => {
                 const id = generateId();
                 await env.DB.prepare(
                     'INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES (?, ?, ?, ?)'
-                ).bind(id, user.userId, item.product_id.toString(), item.quantity || 1).run();
+                ).bind(
+                    id,
+                    user.userId,
+                    item.product_id.toString(),
+                    item.quantity || 1
+                ).run();
             }
         }
     }
 
     // Return updated cart
     const cartItems = await env.DB.prepare(`
-        SELECT ci.id, ci.quantity, ci.product_id, p.title, p.price, p.image_url
-        FROM cart_items ci
-        JOIN products p ON ci.product_id = p.id
-        WHERE ci.user_id = ?
+        SELECT id, quantity, product_id, created_at
+        FROM cart_items
+        WHERE user_id = ?
+        ORDER BY created_at DESC
     `).bind(user.userId).all();
 
     return jsonResponse(cartItems.results || [], 200, env, requestOrigin);
+});
+
+// ==================== ORDER ROUTES ====================
+
+router.post('/api/orders', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
+    const user = await authenticateRequest(request, env);
+    if (!user) {
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
+    }
+
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return errorResponse('Invalid request body', 400, env, requestOrigin);
+    }
+
+    const { shippingAddress, contactNumber } = body;
+
+    // Get cart items
+    const cartItemsResult = await env.DB.prepare(`
+        SELECT * FROM cart_items WHERE user_id = ?
+    `).bind(user.userId).all();
+
+    const cartItems = cartItemsResult.results || [];
+
+    if (cartItems.length === 0) {
+        return errorResponse('Cart is empty', 400, env, requestOrigin);
+    }
+
+    // Calculate total
+    const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    const orderId = generateId();
+
+    try {
+        // Start transaction (D1 doesn't support explicit transactions in all modes, but we'll adapt)
+        // Insert order
+        await env.DB.prepare(`
+            INSERT INTO orders (id, user_id, total_amount, shipping_address, contact_number, status, payment_status)
+            VALUES (?, ?, ?, ?, ?, 'pending', 'pending')
+        `).bind(orderId, user.userId, totalAmount, JSON.stringify(shippingAddress), contactNumber).run();
+
+        // Insert order items
+        const stmt = env.DB.prepare(`
+            INSERT INTO order_items (id, order_id, product_id, quantity, title, price, image_url, selected_size, selected_color)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        // Batch execution would be better but doing loop for simplicity with current bindings
+        for (const item of cartItems) {
+            await stmt.bind(
+                generateId(),
+                orderId,
+                item.product_id,
+                item.quantity,
+                item.title,
+                item.price,
+                item.image_url,
+                item.selected_size,
+                item.selected_color
+            ).run();
+        }
+
+        // Clear cart
+        await env.DB.prepare('DELETE FROM cart_items WHERE user_id = ?').bind(user.userId).run();
+
+        return jsonResponse({
+            id: orderId,
+            message: 'Order placed successfully',
+            totalAmount
+        }, 201, env, requestOrigin);
+
+    } catch (error) {
+        console.error('Order creation failed:', error);
+        return errorResponse('Failed to place order', 500, env, requestOrigin);
+    }
+});
+
+router.get('/api/orders', async (request, env) => {
+    const requestOrigin = request.headers.get('Origin');
+    const user = await authenticateRequest(request, env);
+    if (!user) {
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
+    }
+
+    const orders = await env.DB.prepare(`
+        SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC
+    `).bind(user.userId).all();
+
+    // Parse shipping address if it's a string
+    const results = (orders.results || []).map(order => {
+        try {
+            return {
+                ...order,
+                shipping_address: typeof order.shipping_address === 'string'
+                    ? JSON.parse(order.shipping_address)
+                    : order.shipping_address
+            };
+        } catch {
+            return order;
+        }
+    });
+
+    return jsonResponse(results, 200, env, requestOrigin);
+});
+
+router.get('/api/orders/:id', async (request, env, ctx, params) => {
+    const requestOrigin = request.headers.get('Origin');
+    const user = await authenticateRequest(request, env);
+    if (!user) {
+        return errorResponse('Unauthorized', 401, env, requestOrigin);
+    }
+
+    const order = await env.DB.prepare(`
+        SELECT * FROM orders WHERE id = ? AND user_id = ?
+    `).bind(params.id, user.userId).first();
+
+    if (!order) {
+        return errorResponse('Order not found', 404, env, requestOrigin);
+    }
+
+    const items = await env.DB.prepare(`
+        SELECT * FROM order_items WHERE order_id = ?
+    `).bind(order.id).all();
+
+    try {
+        order.shipping_address = typeof order.shipping_address === 'string'
+            ? JSON.parse(order.shipping_address)
+            : order.shipping_address;
+    } catch { }
+
+    return jsonResponse({
+        ...order,
+        items: items.results || []
+    }, 200, env, requestOrigin);
 });
 
 // ==================== SUBSCRIBE ROUTES ====================

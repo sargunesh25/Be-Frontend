@@ -19,13 +19,14 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(''); // Clear previous errors
         try {
             await registerUser(formData.email, formData.password, formData.firstName, formData.lastName);
 
             // Auto login after register to merge cart
-            const loginData = await loginUser(formData.email, formData.password);
-            localStorage.setItem('token', loginData.token);
-            localStorage.setItem('user', JSON.stringify(loginData.user));
+            const data = await registerUser(formData.email, formData.password, formData.firstName, formData.lastName);
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
 
             // Merge guest cart
             const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
@@ -38,7 +39,8 @@ const Register = () => {
             navigate('/');
             window.location.reload();
         } catch (err) {
-            setError('Registration failed. Please try again.');
+            console.error('Registration error:', err);
+            setError(err.message || 'Registration failed. Please try again.');
         }
     };
 

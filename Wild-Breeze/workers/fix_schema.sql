@@ -1,8 +1,14 @@
--- Wild-Breeze D1 Database Schema
--- Run with: wrangler d1 execute wild-breeze-db --file=./schema.sql
+-- Drop existing tables and recreate with proper schema
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS discount_signups;
+DROP TABLE IF EXISTS contact_messages;
+DROP TABLE IF EXISTS faqs;
+DROP TABLE IF EXISTS hero_slides;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS users;
 
 -- Users table (replaces Firebase Auth + users collection)
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -12,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Products table
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     price REAL NOT NULL,
@@ -25,7 +31,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 -- Hero slides table
-CREATE TABLE IF NOT EXISTS hero_slides (
+CREATE TABLE hero_slides (
     id TEXT PRIMARY KEY,
     image_url TEXT NOT NULL,
     banner_text TEXT,
@@ -34,7 +40,7 @@ CREATE TABLE IF NOT EXISTS hero_slides (
 );
 
 -- FAQs table
-CREATE TABLE IF NOT EXISTS faqs (
+CREATE TABLE faqs (
     id TEXT PRIMARY KEY,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
@@ -42,7 +48,7 @@ CREATE TABLE IF NOT EXISTS faqs (
 );
 
 -- Contact messages table
-CREATE TABLE IF NOT EXISTS contact_messages (
+CREATE TABLE contact_messages (
     id TEXT PRIMARY KEY,
     name TEXT,
     email TEXT,
@@ -51,7 +57,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 -- Cart items table with all required columns
-CREATE TABLE IF NOT EXISTS cart_items (
+-- Cart items table with all required columns
+CREATE TABLE cart_items (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
     product_id TEXT NOT NULL,
@@ -61,14 +68,14 @@ CREATE TABLE IF NOT EXISTS cart_items (
 );
 
 -- Discount signups table
-CREATE TABLE IF NOT EXISTS discount_signups (
+CREATE TABLE discount_signups (
     id TEXT PRIMARY KEY,
     phone_number TEXT UNIQUE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_cart_user ON cart_items(user_id);
-CREATE INDEX IF NOT EXISTS idx_cart_product ON cart_items(product_id);
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
-CREATE INDEX IF NOT EXISTS idx_hero_slides_active ON hero_slides(is_active);
+CREATE INDEX idx_cart_user ON cart_items(user_id);
+CREATE INDEX idx_cart_product ON cart_items(product_id);
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_hero_slides_active ON hero_slides(is_active);

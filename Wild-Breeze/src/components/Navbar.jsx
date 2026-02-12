@@ -1,21 +1,45 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom'; // Added useNavigate
 import { User, ShoppingBag, Search, ChevronDown, Wind, Menu, X } from 'lucide-react';
 import './Navbar.css';
 import { useCart } from '../context/CartContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Added useEffect
 
-const Navbar = ({ promoText = "All orders $100+ ship for free!" }) => {
+const Navbar = ({ promoText = "All orders $100+ ship for free!", openAuth }) => {
     const location = useLocation();
     const { cartCount } = useCart();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        setIsLoggedIn(!!token);
+    }, []);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const isActive = (path) => location.pathname === path ? 'active' : '';
-
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     if (location.pathname === '/checkout') return null;
 
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        setIsLoggedIn(false);
+        setIsDropdownOpen(false);
+        navigate('/');
+        window.location.reload();
+    };
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    // ... (rest of the component)
+
     return (
         <div className="navbar-container">
+            {/* Promo Bar */}
             <div className="promo-bar">
                 {promoText}
             </div>
@@ -34,7 +58,25 @@ const Navbar = ({ promoText = "All orders $100+ ship for free!" }) => {
                 </Link>
 
                 <div className="header-right">
-                    <Link to="/account"><User size={22} className="icon-btn" /></Link>
+                    {/* User Icon with Dropdown or Auth Modal */}
+                    <div className="account-dropdown-container">
+                        <div
+                            onClick={isLoggedIn ? toggleDropdown : openAuth}
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                            <User size={22} className="icon-btn" />
+                        </div>
+
+                        {isLoggedIn && isDropdownOpen && (
+                            <div className="account-dropdown-menu">
+                                <Link to="/account" className="account-dropdown-item" onClick={() => setIsDropdownOpen(false)}>Profile</Link>
+                                <Link to="/orders" className="account-dropdown-item" onClick={() => setIsDropdownOpen(false)}>Orders</Link>
+                                <div className="account-dropdown-divider"></div>
+                                <div className="account-dropdown-item" onClick={handleLogout}>Logout</div>
+                            </div>
+                        )}
+                    </div>
+
                     <Link to="/cart" className="cart-icon-wrapper" style={{ textDecoration: 'none', color: '#333' }}>
                         <ShoppingBag size={22} className="icon-btn" />
                         {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

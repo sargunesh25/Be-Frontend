@@ -14,24 +14,30 @@
     border-radius: 4px;
     display: flex;
     justify-content: flex-end;
-    /* Align content to the right */
-    padding: 40px 0;
-    /* Vertical padding inside */
+    /* Align card to the right */
+    align-items: center;
+    /* Center card vertically */
+    padding: 0;
 }
 
 .keplar-content {
-    width: 40%;
-    padding-right: 40px;
-    text-align: right;
+    background-color: white;
+    width: 400px;
+    /* Fixed width for card look */
+    max-width: 90%;
+    padding: 40px;
+    margin-right: 60px;
+    /* Space from right edge */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* Center content vertically together */
-    align-items: flex-end;
-    /* Align to right */
-    gap: 20px;
-    /* Space between elements */
-    height: 100%;
+    align-items: flex-start;
+    /* Left align content inside card */
+    text-align: left;
+    gap: 16px;
+    border-radius: 2px;
+    /* Slight roundness */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .keplar-text-group {
@@ -63,15 +69,15 @@
 
 .keplar-btn {
     background-color: #3e5246;
-    /* Olive green fixed */
     color: white;
-    border: 1px solid #3e5246;
-    padding: 12px 32px;
+    border: none;
+    padding: 14px 36px;
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    border-radius: 0;
-    align-self: flex-end;
+    border-radius: 2px;
     margin-top: 10px;
+    transition: background-color 0.3s;
 }
 
 .keplar-btn:hover {
@@ -82,12 +88,17 @@
 }
 
 @media (max-width: 768px) {
+    .keplar-container {
+        justify-content: center;
+        align-items: center;
+    }
+
     .keplar-content {
-        width: 100%;
-        padding: 20px;
-        background: none;
-        /* Removed white shade */
-        text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
-        /* Add shadow for readability instead */
+        width: 90%;
+        max-width: 400px;
+        margin-right: 0;
+        padding: 30px;
+        /* Keep white background and shadow */
+        text-shadow: none;
     }
 }

@@ -13,7 +13,7 @@ const Login = () => {
         e.preventDefault();
         try {
             const data = await loginUser(email, password);
-            localStorage.setItem('token', data.token);
+            localStorage.setItem('authToken', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
 
             // Merge guest cart

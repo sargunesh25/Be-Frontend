@@ -21,7 +21,7 @@ export const CartProvider = ({ children }) => {
                 fetchCartCount();
             } else {
                 // User is signed out, load guest cart
-                const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+                const cart = JSON.parse(localStorage.getItem('guestCart') || '[]');
                 const count = cart.reduce((acc, item) => acc + item.quantity, 0);
                 setCartCount(count);
             }
@@ -46,7 +46,7 @@ export const CartProvider = ({ children }) => {
             }
         } else {
             // Guest cart
-            const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+            const cart = JSON.parse(localStorage.getItem('guestCart') || '[]');
             const count = cart.reduce((acc, item) => acc + item.quantity, 0);
             setCartCount(count);
         }
@@ -58,7 +58,15 @@ export const CartProvider = ({ children }) => {
 
         if (token && isAuthenticated()) {
             try {
-                await apiAddToCart(product.id, quantity);
+                // Pass complete product data to API
+                await apiAddToCart({
+                    id: product.id,
+                    title: product.title,
+                    price: product.price,
+                    image_url: product.image_url,
+                    selectedSize: product.selectedSize,
+                    selectedColor: product.selectedColor
+                }, quantity);
                 success = true;
             } catch (err) {
                 console.error("Failed to add to cart API", err);
@@ -68,7 +76,7 @@ export const CartProvider = ({ children }) => {
             }
         } else {
             // Guest Logic
-            const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+            const cart = JSON.parse(localStorage.getItem('guestCart') || '[]');
             const existingItem = cart.find(item => item.product_id === product.id);
             if (existingItem) {
                 existingItem.quantity += quantity;
@@ -81,7 +89,7 @@ export const CartProvider = ({ children }) => {
                     quantity: quantity
                 });
             }
-            localStorage.setItem('guest_cart', JSON.stringify(cart));
+            localStorage.setItem('guestCart', JSON.stringify(cart));
             success = true;
         }
 
